@@ -8,7 +8,7 @@ requirements = [
         "matplotlib>=3.3.2",
         "scipy>=1.5.4",
         "re>=2.2.1"
-        ]i
+        ]
 
 setup(
         name="dsc_thermo"
