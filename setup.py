@@ -11,7 +11,7 @@ requirements = [
         ]
 
 setup(
-        name="dsc_thermo"
+        name="dsc_thermo",
         version = version,
         install_requires=requirements
         )
