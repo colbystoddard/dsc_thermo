@@ -1,0 +1,11 @@
+#...
+[project]
+name = "dsc_thermo"
+dependencies = [
+    "requests",
+    'importlib-metadata; python_version<"3.8"',
+]
+dynamic = ["version"]
+#...
+[tools.setuptools.dynamic]
+version = {file = "VERSION"}
