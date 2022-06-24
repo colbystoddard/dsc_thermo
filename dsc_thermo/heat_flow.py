@@ -24,6 +24,7 @@ cp_sapphire = interpolate.interp1d(sapphire_Cp_data[0], mu_sapphire*sapphire_Cp_
 
 
 #find indices of ends of temperature plateaus
+#Note: this function assumes the program ends with an isothermal that is not part of the data collection
 def get_endpoints(program_temp):
     plateaus = np.where(np.diff(program_temp) == 0)[0] + 1 
     #^ add 1 b/c diff gives arr[i+1]-arr[i], but we need arr[i]-arr[i-1]
@@ -60,12 +61,12 @@ def read_dsc_output(filename):
                     else:
                         raise RuntimeError("Unknown mass units")
 
-                if b"DSC 8500 Isothermal" in line: #Assuming the run starts with an isothermal hold
+                if ("\t" +" "*10 + "\t").encode() in line:
                     break
 
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")        
-                data = np.genfromtxt(file, unpack=True, skip_header=2, invalid_raise=False)
+                data = np.genfromtxt(file, unpack=True, invalid_raise=False)
                 
     elif ".csv" in filename:
         data = np.genfromtxt(filename, delimiter=",", skip_header=1, unpack=True)
@@ -81,12 +82,19 @@ plots heatflow vs. time.
     filter_labels: list of strings that will identify the highlighted points in the legend
         (must be specified to plot highlighted points)
     filter_colors: list of colors of the highlighted points. See matplotlib.pyplot.plt
+    axes: axes to plot data on (if None, new axes will be created)
+
+    returns: axes used to plot data
 '''
-def plot_heatflow(sample, sample_filters=[], filter_labels=None, filter_colors=None):
+def plot_heatflow(sample, sample_filters=[], filter_labels=None, filter_colors=None, axes=None):
     if filter_colors is None:
         filter_colors = ["C{}".format(i+1) for i in range(len(sample_filters))]
-    fig, ax = plt.subplots(figsize=(8,5))
-    ax2 = ax.twinx()
+    if axes is None:
+        fig, ax = plt.subplots(figsize=(8,5))
+        ax2 = ax.twinx()
+        axes = (ax, ax2)
+    else:
+        ax, ax2 = axes
 
     y1 = min(sample[1])*np.ones(len(sample[1])-1)
     y2 = max(sample[1])*np.ones(len(sample[1])-1)
@@ -108,6 +116,7 @@ def plot_heatflow(sample, sample_filters=[], filter_labels=None, filter_colors=N
 
     ax.set(xlabel="Time (s)", ylabel="Heat Flow (mW)")
     ax2.set(ylabel="Temperature ($^\circ C$)")
+    return axes
 
 '''
 Finds the data points to use for dQ/dT|_{dT/dt \neq 0} in the cp calculation. Currently uses the highest 
@@ -196,6 +205,8 @@ def get_Q_dot(sample, reference, ref_endpoints, sample_filter=None):
         Q_dot[Q_dot_ind] = Q_dot_func(sample[4][samp_ind])
     return Q_dot
 
+
+
 #stores data from dsc measurements and provides methods for calculating physical quantities from this data 
 class Heat_Flow_Data:
     def __init__(self, sample_file, sapphire_file, empty_file, sample_molar_mass):
@@ -203,9 +214,25 @@ class Heat_Flow_Data:
         self.sapphire, self.sapphire_mass = read_dsc_output(sapphire_file)
         self.empty, _ = read_dsc_output(empty_file)
         self.mu_samp = sample_molar_mass
+
+    #check that the isotherms of the 3 runs are at the same temperature
+    def check_isotherms(self, tol=0.2):
+        sample_endpoints = get_endpoints(self.sample[3])
+        sapphire_endpoints = get_endpoints(self.sapphire[3])
+        empty_endpoints = get_endpoints(self.empty[3])
+
+        #only check isotherms where sapphire and empty are supposed to match sample
+        sapphire_trim = np.in1d(self.sapphire[3][sapphire_endpoints], self.sample[3][sample_endpoints])
+        empty_trim = np.in1d(self.empty[3][empty_endpoints], self.sample[3][sample_endpoints])
+        if (abs(self.sample[4][sample_endpoints] - self.sapphire[4][sapphire_endpoints][sapphire_trim]) > tol).any():
+            #print(abs(self.sample[4][sample_endpoints]-self.sapphire[4][sapphire_endpoints])>0.1)
+            raise RuntimeError("Sample and Sapphire hold at different temperatures")
+        elif (abs(self.sample[4][sample_endpoints]-self.empty[4][empty_endpoints][empty_trim]) > tol).any():
+            raise RuntimeError("Sample and Empty hold at different temperatures")
     
     #from Glade et al 2000
     def cp(self, plot=False):
+        self.check_isotherms()
         sample_endpoints = get_endpoints(self.sample[3])
         sapphire_endpoints = get_endpoints(self.sapphire[3])
         empty_endpoints = get_endpoints(self.empty[3])
@@ -213,13 +240,6 @@ class Heat_Flow_Data:
         sample_filter = get_filter(self.sample, self.sapphire, self.empty)
 
         T_samp = self.sample[4][sample_filter]
-
-        
-        if (abs(self.sample[4][sample_endpoints] - self.sapphire[4][sapphire_endpoints]) > 0.2).any():
-            #print(abs(self.sample[4][sample_endpoints]-self.sapphire[4][sapphire_endpoints])>0.1)
-            raise RuntimeError("Sample and Sapphire hold at different temperatures")
-        elif (abs(self.sample[4][sample_endpoints]-self.empty[4][empty_endpoints]) > 0.2).any():
-            raise RuntimeError("Sample and Empty hold at different temperatures")
         
         m_samp, m_sapphire = self.sample_mass, self.sapphire_mass
         mu_samp = self.mu_samp
