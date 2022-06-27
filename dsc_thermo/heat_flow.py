@@ -209,11 +209,10 @@ def get_Q_dot(sample, reference, ref_endpoints, sample_filter=None):
 
 #stores data from dsc measurements and provides methods for calculating physical quantities from this data 
 class Heat_Flow_Data:
-    def __init__(self, sample_file, sapphire_file, empty_file, sample_molar_mass):
+    def __init__(self, sample_file, sapphire_file, empty_file):
         self.sample, self.sample_mass = read_dsc_output(sample_file)
         self.sapphire, self.sapphire_mass = read_dsc_output(sapphire_file)
         self.empty, _ = read_dsc_output(empty_file)
-        self.mu_samp = sample_molar_mass
 
     #check that the isotherms of the 3 runs are at the same temperature
     def check_isotherms(self, tol=0.2):
@@ -231,7 +230,7 @@ class Heat_Flow_Data:
             raise RuntimeError("Sample and Empty hold at different temperatures")
     
     #from Glade et al 2000
-    def cp(self, plot=False):
+    def cp(self, mu_samp, plot=False):
         self.check_isotherms()
         sample_endpoints = get_endpoints(self.sample[3])
         sapphire_endpoints = get_endpoints(self.sapphire[3])
@@ -242,7 +241,6 @@ class Heat_Flow_Data:
         T_samp = self.sample[4][sample_filter]
         
         m_samp, m_sapphire = self.sample_mass, self.sapphire_mass
-        mu_samp = self.mu_samp
         
         #using unsubtracted heat flow
         Q_dot_samp = self.sample[1][sample_filter] - dQdt_flat(self.sample[1], sample_filter, sample_endpoints)
