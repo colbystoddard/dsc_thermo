@@ -11,6 +11,7 @@ import re
 import json
 import types
 import re
+from collections import OrderedDict
 
 from . import molar_mass
 from . import heat_flow as hf
@@ -232,3 +233,65 @@ def reload(filename, Material_Class):
     kwargs = material_dict["kwargs"]
     return Material_Class(None, Cp_data=Cp_data, **kwargs)
 
+'''
+Get dict corresponding to measurement files from a file containing their names. The file 
+should be formatted as follows:
+'''
+#TODO explain how to format the file
+#currently doesn't work w/ whitespace in names
+def get_files(name_file, path=""):
+    file_dict = {}
+    measurement_names = ["sample", "sapphire", "empty"]
+    position = OrderedDict([("sample",0), ("sapphire",1), ("empty",2)])
+    repeat = ['""', "''"]
+    with open(name_file, "r") as file:
+        file_lines = file.readlines()
+    phase_name = ""
+    for line in file_lines:
+        if line.startswith("#"):
+            continue
+            
+        line.replace(",", " ")
+        if "path" in line and re.search("[:=]", line):
+            path = re.split("\s*[:=]\s*", line)[-1][:-1] #[:-1] to remove newline
+        else:
+            split_line = line.split()
+            if len(split_line) == 1:
+                phase_name = split_line[0]
+            #cleaner way to do this?
+            elif "sample" in split_line and "sapphire" in split_line and "empty" in split_line:
+                measurement_names = split_line
+            elif split_line:
+                split_line = [path + file_name if file_name not in repeat else last_line[i] for i, file_name in enumerate(split_line)]
+                file_names = [split_line[position[measurement_name]] for measurement_name in measurement_names]
+                
+                if phase_name in file_dict:
+                    file_dict[phase_name].append(file_names)
+                else:
+                    file_dict.update({phase_name:[file_names]})
+                
+                last_line = split_line
+                    
+    return file_dict
+
+'''
+generates dictionary of hf.Heat_Flow_Data objects from a dictionary containing the names of the corresponding
+dsc output files (see get_files)
+'''
+def gen_heat_flow(file_dict):
+    heat_flow_dict = {}
+    for phase_name, measurements in file_dict.items():
+        heat_flow_dict.update({phase_name:[hf.Heat_Flow_Data(*file_names) for file_names in measurements]})
+    return heat_flow_dict
+
+'''
+generates a Material (or subclass of Material) object from a file containing the names of the corresponding dsc
+output files (see get_files)
+    name_file: file containing names of dsc output files
+    molar_mass: molar mass of the material
+    Material_Class: subclass of Material to initialize from the dsc data
+'''
+def gen_material(name_file, molar_mass, Material_Class, **kwargs):
+    file_dict = get_files(name_file)
+    heat_flow_dict = gen_heat_flow(file_dict)
+    return Material_Class(heat_flow_dict, molar_mass=molar_mass, **kwargs)
