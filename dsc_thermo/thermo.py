@@ -65,7 +65,6 @@ class Phase:
     def set_params(self, **kwargs):
         self.Tf = kwargs["Tf"] if "Tf" in kwargs else 0
         self.Hf = kwargs["Hf"] if "Hf" in kwargs else 0
-        vi
         self.T_min = kwargs["T_min"] if "T_min" in kwargs else 0
         self.T_max = kwargs["T_max"] if "T_max" in kwargs else np.inf
         
