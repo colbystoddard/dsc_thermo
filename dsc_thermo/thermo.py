@@ -12,8 +12,8 @@ import json
 import types
 import re
 
-import molar_mass
-import heat_flow as hf
+from . import molar_mass
+from . import heat_flow as hf
 
 R = 8.31452 #J/(K*mol)
 

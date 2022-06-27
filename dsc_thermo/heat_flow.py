@@ -12,7 +12,7 @@ from scipy import integrate
 import warnings
 import re
 
-import molar_mass
+from . import molar_mass
 ################################################################################
 
 mu_sapphire = molar_mass.molar_mass("Al2O3")
