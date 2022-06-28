@@ -4,14 +4,14 @@ import pkgutil
 def gen_atomic_mass_dict():
     atomic_masses = {}
     element_info = pkgutil.get_data(__package__, "data/element_info.txt").decode("utf-8")
-    element_data_list = element_info.split("\n\n")
+    element_data_list = element_info.split("\r\n\r\n")
     for element_data in element_data_list:
         if 'Atomic Symbol' in element_data:
             split_data = element_data.splitlines()
             element_symbol = split_data[1].split(" = ")[-1]
             mass_range = re.sub("[()\[\]]", "", split_data[5].split(" = ")[-1]).split(",")
             if len(mass_range) == 2:
-                atomic_mass = (float(mass_range[0])) + float(mass_range[1])/2
+                atomic_mass = (float(mass_range[0]) + float(mass_range[1]))/2
             else:
                 try:
                     atomic_mass = float(mass_range[0])
