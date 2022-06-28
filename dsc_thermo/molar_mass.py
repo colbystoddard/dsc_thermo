@@ -3,7 +3,7 @@ import pkgutil
 
 def gen_atomic_mass_dict():
     atomic_masses = {}
-    element_info = pkgutil.get_data(__package__, "element_info.txt")
+    element_info = pkgutil.get_data(__package__, "data/element_info.txt")
     element_data_list = element_info.split("\n\n")
     for element_data in element_data_list:
         if 'Atomic Symbol' in element_data:

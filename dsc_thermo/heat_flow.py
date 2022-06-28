@@ -13,7 +13,7 @@ from . import molar_mass
 ################################################################################
 
 mu_sapphire = molar_mass.molar_mass("Al2O3")
-sapphire_Cp_file = pkgutil.get_data(__package__, "Sapphire_Cp_ASTM.txt")
+sapphire_Cp_file = pkgutil.get_data(__package__, "data/Sapphire_Cp_ASTM.txt")
 sapphire_Cp_data = np.genfromtxt(sapphire_Cp_file, skip_header=1, unpack=True) #from ASTM
 
 cp_sapphire = interpolate.interp1d(sapphire_Cp_data[0], mu_sapphire*sapphire_Cp_data[2]) #linear interpolation
