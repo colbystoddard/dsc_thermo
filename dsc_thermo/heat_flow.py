@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-
 import numpy as np
 from numpy import sin, cos, pi, exp
 from numpy import log as ln
@@ -11,13 +7,14 @@ from scipy.optimize import curve_fit
 from scipy import integrate
 import warnings
 import re
+import pkgutil
 
 from . import molar_mass
 ################################################################################
 
 mu_sapphire = molar_mass.molar_mass("Al2O3")
-#sapphire_Cp_data = np.genfromtxt("Cp_sapphire.txt", skip_header=3, unpack=True) #from TA instruments
-sapphire_Cp_data = np.genfromtxt("Sapphire_Cp_ASTM.txt", skip_header=1, unpack=True) #from ASTM
+sapphire_Cp_file = pkgutil.get_data(__package__, "Sapphire_Cp_ASTM.txt")
+sapphire_Cp_data = np.genfromtxt(sapphire_Cp_file, skip_header=1, unpack=True) #from ASTM
 
 cp_sapphire = interpolate.interp1d(sapphire_Cp_data[0], mu_sapphire*sapphire_Cp_data[2]) #linear interpolation
 #TODO check if this is okay

@@ -1,24 +1,24 @@
 import re
+import pkgutil
 
 def gen_atomic_mass_dict():
     atomic_masses = {}
-    with open("element_info.txt", "r") as file:
-        file_string = file.read()
-        element_data_list = file_string.split("\n\n")
-        for element_data in element_data_list:
-            if 'Atomic Symbol' in element_data:
-                split_data = element_data.splitlines()
-                element_symbol = split_data[1].split(" = ")[-1]
-                mass_range = re.sub("[()\[\]]", "", split_data[5].split(" = ")[-1]).split(",")
-                if len(mass_range) == 2:
-                    atomic_mass = (float(mass_range[0])) + float(mass_range[1])/2
-                else:
-                    try:
-                        atomic_mass = float(mass_range[0])
-                    except ValueError:
-                        atomic_mass = None
-                    
-                atomic_masses.update({element_symbol: atomic_mass})
+    element_info = pkgutil.get_data(__path__, "element_info.txt")
+    element_data_list = element_info.split("\n\n")
+    for element_data in element_data_list:
+        if 'Atomic Symbol' in element_data:
+            split_data = element_data.splitlines()
+            element_symbol = split_data[1].split(" = ")[-1]
+            mass_range = re.sub("[()\[\]]", "", split_data[5].split(" = ")[-1]).split(",")
+            if len(mass_range) == 2:
+                atomic_mass = (float(mass_range[0])) + float(mass_range[1])/2
+            else:
+                try:
+                    atomic_mass = float(mass_range[0])
+                except ValueError:
+                    atomic_mass = None
+                
+            atomic_masses.update({element_symbol: atomic_mass})
     return atomic_masses
 
 atomic_masses = gen_atomic_mass_dict()
