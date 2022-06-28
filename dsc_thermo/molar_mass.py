@@ -23,6 +23,7 @@ def gen_atomic_mass_dict():
 
 atomic_masses = gen_atomic_mass_dict()
 
+
 def molar_mass(formula):
     formula = "".join(formula.split("_")) #remove underscores
     
