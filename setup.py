@@ -12,6 +12,7 @@ requirements = [
 
 setup(
         name="dsc_thermo",
+        package_data = {"dsc_thermo": ["data/*"],
         version = version,
         install_requires=requirements
         )
