@@ -78,7 +78,7 @@ class Phase:
             
             self.gibbs = lambda T: self.enthalpy(T) - T*self.entropy(T)
         else:
-            self.Cp, self.Cp_fivals, self.enthalpy, self.entropy, self.gibbs = [None]*5
+            self.Cp, self.Cp_fitvals, self.enthalpy, self.entropy, self.gibbs = [None]*5
             
     def get_Cp(self):
         #assuming fit_func is in K and T_measured is in C
