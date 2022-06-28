@@ -167,7 +167,7 @@ class Material:
                  
     #takes keyword arguments passed to __init__ and passes them into phase class.
     def get_phase_params(self, phase_name, **kwargs):
-        return {key:kwargs[key][name] if isinstance(kwargs[key], dict) else kwargs[key] for key in kwargs.keys()}
+        return {key:kwargs[key][phase_name] if isinstance(kwargs[key], dict) else kwargs[key] for key in kwargs.keys()}
         
     '''
     for single phase:
