@@ -74,7 +74,7 @@ class Phase:
         self.Hf = kwargs["Hf"] if "Hf" in kwargs else 0
         self.T_min = kwargs["T_min"] if "T_min" in kwargs else 0
         self.T_max = kwargs["T_max"] if "T_max" in kwargs else np.inf
-        self.exclude_interval = kwargs["exclude_interval"] else None
+        self.exclude_interval = kwargs["exclude_interval"] if "exclude_interval" in kwargs else None
         
     def fit(self):
         if self.Cp_fit_func is not None:
