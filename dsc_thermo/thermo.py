@@ -35,7 +35,7 @@ class Phase:
         calculating Cp from dsc_data)
     
     keyword arguments:
-        Tf: Temperature of Fusion (lower bound for all integrals) (default 0)
+        Tf: Temperature of Fusion in K (lower bound for all integrals) (default 0)
         Hf: Enthalpy of fusion (so H(T)=Hf+ \int_Tf^T Cp dT) (default 0)
         T_min: minimum temperature phase can exist at (default 0)
         T_max: maximum temperature phase can exist at (default np.inf)
@@ -113,7 +113,7 @@ class Phase:
                 for i, T in enumerate(T):
                     S[i] = Sf + integrate.quad(Cp_over_T, self.Tf, T)[0]
             else:
-                S = Sf + integrate.quad(Cp_over_T, self.T0, T)[0]
+                S = Sf + integrate.quad(Cp_over_T, self.Tf, T)[0]
             return S
         return S_func
 
