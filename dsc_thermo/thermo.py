@@ -59,7 +59,7 @@ class Phase:
             if not isinstance(self.exclude_interval[0], (tuple, list)):
                 self.exclude_interval = [self.exclude_interval]
             for interval in self.exclude_interval:
-                T_range |= (self.T_measured <= interval[0]) | (self.T_measured >= interval[1])
+                T_range &= (self.T_measured <= interval[0]) | (self.T_measured >= interval[1])
 
 
         self.T_measured = self.T_measured[T_range]
