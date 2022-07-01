@@ -195,7 +195,7 @@ class Glass_Former(Material):
     Cp_fit_func = {"glass":None, "liquid":cp_liquid, "crystal":cp_crystal}
     
     def get_phase_params(self, phase_name, **kwargs):
-        phase_params = super().get_phase_params
+        phase_params = super().get_phase_params(phase_name, **kwargs)
         if phase_name != "liquid":
             phase_params.update({"Hf":0})
         return phase_params
