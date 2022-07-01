@@ -39,6 +39,8 @@ class Phase:
         Hf: Enthalpy of fusion (so H(T)=Hf+ \int_Tf^T Cp dT) (default 0)
         T_min: minimum temperature phase can exist at (default 0)
         T_max: maximum temperature phase can exist at (default np.inf)
+        exclude_interval: tuple or list of tuples representing the Temperature interval(s)
+            you want to exclude from the phase.
     '''
     def __init__(self, dsc_data, Cp_fit_func=None, Cp_data=None, molar_mass=None, **kwargs):
         if Cp_data is not None:
@@ -52,8 +54,13 @@ class Phase:
             
         self.set_params(**kwargs)
         
-        T_range = np.where((self.T_measured >= self.T_min) & (self.T_measured <= self.T_max))[0] 
-        #TODO: why does bool array give error
+        T_range = (self.T_measured >= self.T_min) & (self.T_measured <= self.T_max)
+        if exlude_interval is not None:
+            if not isinstance(exlude_interval[0], (tuple, list)):
+                exclude_interval = [exclude_interval]
+            for interval in exclude_interval:
+                T_range |= (self.T_measured <= interval[0]) | (self.T_measured >= interval[1])
+
 
         self.T_measured = self.T_measured[T_range]
         self.Cp_measured = self.Cp_measured[T_range]
@@ -67,6 +74,7 @@ class Phase:
         self.Hf = kwargs["Hf"] if "Hf" in kwargs else 0
         self.T_min = kwargs["T_min"] if "T_min" in kwargs else 0
         self.T_max = kwargs["T_max"] if "T_max" in kwargs else np.inf
+        self.exclude_interval = kwargs["exclude_interval"] else None
         
     def fit(self):
         if self.Cp_fit_func is not None:

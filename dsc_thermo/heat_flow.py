@@ -110,7 +110,7 @@ def plot_heatflow(sample, sample_filters=[], filter_labels=None, filter_colors=N
         for sample_filter, filter_color in zip(sample_filters, filter_colors):
             ax.plot(sample[0][sample_filter], sample[1][sample_filter], ".", color=filter_color, ms=10)
 
-    ax.set(xlabel="Time (s)", ylabel="Heat Flow (mW)")
+    ax.set(xlabel="Time (m)", ylabel="Heat Flow (mW)")
     ax2.set(ylabel="Temperature ($^\circ C$)")
     return axes
 
