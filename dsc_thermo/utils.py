@@ -18,28 +18,28 @@ def split_file(readfile_name, writefile1_name, writefile2_name, step, repeat_ste
     writing_file1 = True
     writing_file2 = False
     header_list = []
-    with open(readfile_name, "rb") as readfile:
-        with open(writefile1_name, "wb") as writefile1:
-            writefile1.write("#split from {}\n\n".format(readfile_name).encode())
-            with open(writefile2_name, "wb") as writefile2:
-                writefile2.write("#split from {}\n\n".format(readfile_name).encode())
+    with open(readfile_name, "r", encoding="Windows-1252") as readfile:
+        with open(writefile1_name, "w", encoding="Windows-1252") as writefile1:
+            writefile1.write("#split from {}\n\n".format(readfile_name))
+            with open(writefile2_name, "w", encoding="Windows-1252") as writefile2:
+                writefile2.write("#split from {}\n\n".format(readfile_name))
                 line = readfile.readline()
                 while line:
                     if reading_header:
                         header_list.append(line)
-                        if b"\t          \t" in line:
+                        if "\t          \t" in line:
                             reading_header = False
                             
-                    if line.startswith("{}) DSC 8500".format(step).encode()):
+                    if line.startswith("{}) DSC 8500".format(step)):
                         if not repeat_step:
                             writing_file1 = False
                         writing_file2 = True
-                        writefile2.write(b"".join(header_list))
-                    elif repeat_step and line.startswith("{}) DSC 8500".format(step+1).encode()):
+                        writefile2.write("".join(header_list))
+                    elif repeat_step and line.startswith("{}) DSC 8500".format(step+1)):
                         writing_file1 = False
                         
                     if writing_file1:  
                         writefile1.write(line)
-                    if writing_file2 and not line.startswith("{}) DSC 8500".format(step).encode()):
+                    if writing_file2 and not line.startswith("{}) DSC 8500".format(step)):
                         writefile2.write(line)
                     line = readfile.readline()
