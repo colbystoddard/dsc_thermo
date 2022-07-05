@@ -46,18 +46,27 @@ def equilibrium_reached(sample, N_points=100, tol=0.01, use_derivative=False):
 #gets sample weight and measurement data from dsc output file  
 def read_dsc_output(filename):
     if ".txt" in filename:
-        with open(filename, "rb") as file:
+        with open(filename, "r") as file:
             line = file.readline()
-            while line != b'':
-                line = file.readline()
-                if b"Sample Weight" in line:
+            while line != '':
+                try:
+                    line = file.readline()
+                """
+                file is not in utf-8 format, so Python gets tripped up by degree symbol.
+                I could use rb, but using r and skipping lines that produce errors is much
+                faster
+                """
+                except UnicodeDecodeError:
+                    line = "None"
+                    continue 
+                if "Sample Weight" in line:
                     *_, weight, units = line.split()
-                    if units == b"mg":
+                    if units == "mg":
                         weight = 1e-3*float(weight)
                     else:
                         raise RuntimeError("Unknown mass units")
 
-                if ("\t" +" "*10 + "\t").encode() in line:
+                if ("\t" +" "*10 + "\t") in line:
                     break
 
             with warnings.catch_warnings():
