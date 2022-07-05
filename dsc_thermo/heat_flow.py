@@ -49,13 +49,13 @@ def read_dsc_output(filename):
         with open(filename, "r") as file:
             line = file.readline()
             while line != '':
-                try:
-                    line = file.readline()
                 """
                 file is not in utf-8 format, so Python gets tripped up by degree symbol.
                 I could use rb, but using r and skipping lines that produce errors is much
                 faster
                 """
+                try:
+                    line = file.readline()
                 except UnicodeDecodeError:
                     line = "None"
                     continue 
