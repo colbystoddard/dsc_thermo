@@ -6,7 +6,6 @@ from scipy import interpolate
 from scipy.optimize import curve_fit
 from scipy import integrate
 import warnings
-import time
 import re
 import json
 import types
