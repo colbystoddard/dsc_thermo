@@ -40,6 +40,7 @@ class Phase:
         T_max: maximum temperature phase can exist at (default np.inf)
         exclude_interval: tuple or list of tuples representing the Temperature interval(s)
             you want to exclude from the phase.
+        p0: initial guess for curve_fit
     '''
     def __init__(self, dsc_data, Cp_fit_func=None, Cp_data=None, molar_mass=None, **kwargs):
         if Cp_data is not None:
@@ -74,6 +75,7 @@ class Phase:
         self.T_min = kwargs["T_min"] if "T_min" in kwargs else 0
         self.T_max = kwargs["T_max"] if "T_max" in kwargs else np.inf
         self.exclude_interval = kwargs["exclude_interval"] if "exclude_interval" in kwargs else None
+        self.p0 = kwargs["p0"] if "p0" in kwargs else None
         
     def fit(self):
         if self.Cp_fit_func is not None:
@@ -89,7 +91,7 @@ class Phase:
             
     def get_Cp(self):
         #assuming fit_func is in K and T_measured is in C
-        self.Cp_fitvals, _ = curve_fit(self.Cp_fit_func, self.T_measured+273.15, self.Cp_measured) 
+        self.Cp_fitvals, _ = curve_fit(self.Cp_fit_func, self.T_measured+273.15, self.Cp_measured, p0=self.p0) 
         return lambda T: self.Cp_fit_func(T, *self.Cp_fitvals)
             
     def get_enthalpy(self):
