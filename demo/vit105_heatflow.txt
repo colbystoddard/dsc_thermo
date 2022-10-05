@@ -1,0 +1,8 @@
+path:
+glass
+sample				sapphire			empty
+ss_vit105glass_062322-1.txt	ss_sapphire_062322-2.txt	ss_empty_062322-1.txt
+
+crystal
+sample				sapphire			empty
+ss_vit105xtal_062322-3.txt	""				""
