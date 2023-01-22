@@ -137,7 +137,8 @@ class Material:
         concatenated together.
     molar_mass: molar mass of the material (used to calculate Cp)
     Cp_data: array containing measured Cp vs T data [T, Cp] (single phases) or 
-        dict of arrays (multiple phases). If not None, this Cp vs T data will be        used instead of calculating it from hf.heat_flow_data objects
+        dict of arrays (multiple phases). If not None, this Cp vs T data will be
+        used instead of calculating it from hf.heat_flow_data objects
 
     keyword arguments:
         see Material.get_phase_params
