@@ -6,7 +6,6 @@ from scipy import interpolate
 from scipy.optimize import curve_fit
 from scipy import integrate
 import warnings
-import re
 import json
 import types
 import re
@@ -28,18 +27,20 @@ def cp_liquid(T, a, b):
 #stores and calculates thermodynamic quantities for a given phase of a material
 class Phase:
     '''
-    dsc_data: heat_Flow.Heat_Flow_Data object or list of heat_flow.Heat_Flow_Data objects
+    dsc_data: heat_Flow.Heat_Flow_Data object or list of 
+        heat_flow.Heat_Flow_Data objects
     Cp_fit_func: function to fit Cp to
-    Cp_data: array containing Cp vs T data (if not None, this will be used instead of
-        calculating Cp from dsc_data)
+    Cp_data: array containing Cp vs T data (if not None, this will be used 
+        instead of calculating Cp from dsc_data)
     
     keyword arguments:
-        Tf: Temperature of Fusion in K (lower bound for all integrals) (default 0)
+        Tf: Temperature of Fusion in K (lower bound for all integrals) 
+            (default 0)
         Hf: Enthalpy of fusion (so H(T)=Hf+ \int_Tf^T Cp dT) (default 0)
         T_min: minimum temperature phase can exist at (default 0)
         T_max: maximum temperature phase can exist at (default np.inf)
-        exclude_interval: tuple or list of tuples representing the Temperature interval(s)
-            you want to exclude from the phase.
+        exclude_interval: tuple or list of tuples representing the Temperature 
+            interval(s) you want to exclude from the phase.
         p0: initial guess for curve_fit
     '''
     def __init__(self, dsc_data, Cp_fit_func=None, Cp_data=None, molar_mass=None, **kwargs):
@@ -119,8 +120,7 @@ class Phase:
         return S_func
 
 '''
-Essentially a dictionary of Phase objects. If it contains a single Phase object, the Phase's
-attributes can be accessed by
+Essentially a dictionary of Phase objects. If it contains a single Phase objects, the Phase's attributes can be accessed by
         material.attribute
 If it contains multiple, they can be accessed as
         material[phase_name].attribute
@@ -130,13 +130,14 @@ Designed to be subclassed for different materials
 '''
 class Material:
     '''
-    dsc_data: hf.heat_flow_data object/list of hf.heat_flow_data objects (single phase) or
-        dict of hf.heat_flow_data objects/dict of lists of hf.heat_flow_data objects (multiple phases)
-        where the keys are phases. If a list is passed, the T/Cp from each heat_flow_data 
-        object will be concatenated together.
+    dsc_data: hf.heat_flow_data object/list of hf.heat_flow_data objects 
+        (single phase) or dict of hf.heat_flow_data objects/dict of lists of 
+        hf.heat_flow_data objects (multiple phases) where the keys are phases. 
+        If a list is passed, the T/Cp from each heat_flow_data object will be 
+        concatenated together.
     molar_mass: molar mass of the material (used to calculate Cp)
-    Cp_data: array containing measured Cp vs T data [T, Cp] (single phases) or dict of arrays (multiple phases)
-        If not None, this Cp vs T data will be used instead of calculating it from hf.heat_flow_data objects
+    Cp_data: array containing measured Cp vs T data [T, Cp] (single phases) or 
+        dict of arrays (multiple phases). If not None, this Cp vs T data will be        used instead of calculating it from hf.heat_flow_data objects
 
     keyword arguments:
         see Material.get_phase_params
@@ -161,7 +162,9 @@ class Material:
             Cp_data = {phase_name: Cp_data for phase_name in self.phase_names}
         for phase_name, Cp_fit_func in fit_func_dict.items():
             phase_params = self.get_phase_params(phase_name, **kwargs)
-            self.phases.update({phase_name: Phase(dsc_data[phase_name], Cp_fit_func, Cp_data[phase_name], molar_mass=molar_mass, **phase_params)})
+            self.phases.update({phase_name: Phase(dsc_data[phase_name], 
+                Cp_fit_func, Cp_data[phase_name], molar_mass=molar_mass, 
+                **phase_params)})
 
     #Access Phase attributes
     def __getattr__(self, attr):
@@ -182,17 +185,16 @@ class Material:
     for single phase:
         function to fit measured Cp to (must be staticmethod)
     for multiple phases: 
-        dict. Keys should be phase names and values should be corresponding fit functions for Cp.
+        dict. Keys should be phase names and values should be corresponding fit         functions for Cp.
         If a phase should not be fit, then the value should be None
     '''
     Cp_fit_func = None
 
-
-'''
-Subclass of Material for Glass Formers. Calculates difference in thermodynamic properties between
-liquid and solid phases.
-'''
 class Glass_Former(Material):
+    '''
+    Subclass of Material for Glass Formers. Calculates difference in 
+    thermodynamic properties between liquid and solid phases.
+    '''
     Cp_fit_func = {"glass":None, "liquid":cp_liquid, "crystal":cp_crystal}
     
     def get_phase_params(self, phase_name, **kwargs):
@@ -200,12 +202,6 @@ class Glass_Former(Material):
         if phase_name != "liquid":
             phase_params.update({"Hf":0})
         return phase_params
-    '''
-        phase_params = {"Tf":kwargs["Tf"], "Hf":0}
-        if phase_name == "liquid":
-            phase_params.update({"Hf":kwargs["Hf"]})
-        return phase_params
-    '''
     
     DeltaCp = lambda self, T: self.Cp["liquid"](T) - self.Cp["crystal"](T)
     DeltaH = lambda self, T: self.enthalpy["liquid"](T) - self.enthalpy["crystal"](T)
@@ -261,7 +257,8 @@ def get_files(name_file, path=""):
             
         line.replace(",", " ")
         if "path" in line and re.search("[:=]", line):
-            path = re.split("\s*[:=]\s*", line)[-1][:-1] #[:-1] to remove newline
+            path = re.split("\s*[:=]\s*", line)[-1][:-1] 
+            #[:-1] to remove newline
         else:
             split_line = line.split()
             if len(split_line) == 1:
