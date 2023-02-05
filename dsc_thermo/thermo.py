@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 from scipy.optimize import curve_fit
 from scipy import integrate
+from scipy.constants import R
 import warnings
 import json
 import types
@@ -13,8 +14,6 @@ from collections import OrderedDict
 
 from . import molar_mass
 from . import heat_flow as hf
-
-R = 8.31452 #J/(K*mol)
 
 #From Glade et al 2000
 def cp_crystal(T, a, b):
@@ -48,6 +47,8 @@ class Phase:
             self.T_measured, self.Cp_measured = Cp_data
         elif isinstance(dsc_data, (list, tuple)):
             Cp_list = [data.cp(molar_mass) for data in dsc_data]
+            self.T_unflattened = [data[0] for data in Cp_list]
+            self.Cp_unflattened = [data[1] for data in Cp_list]
             self.T_measured = np.concatenate([data[0] for data in Cp_list])
             self.Cp_measured = np.concatenate([data[1] for data in Cp_list])
         else: 
