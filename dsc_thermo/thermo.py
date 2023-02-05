@@ -49,23 +49,24 @@ class Phase:
             Cp_list = [data.cp(molar_mass) for data in dsc_data]
             self.T_unflattened = [data[0] for data in Cp_list]
             self.Cp_unflattened = [data[1] for data in Cp_list]
-            self.T_measured = np.concatenate(self.T_unflattened)
-            self.Cp_measured = np.concatenate(self.Cp_unflattened)
         else: 
             self.T_measured, self.Cp_measured = dsc_data.cp(molar_mass)
             
         self.set_params(**kwargs)
         
-        T_range = (self.T_measured >= self.T_min) & (self.T_measured <= self.T_max)
-        if self.exclude_interval is not None:
-            if not isinstance(self.exclude_interval[0], (tuple, list)):
-                self.exclude_interval = [self.exclude_interval]
-            for interval in self.exclude_interval:
-                T_range &= (self.T_measured <= interval[0]) | (self.T_measured >= interval[1])
+        #remove data points outside the allowed temperature range
+        for i, T in enumerate(self.T_unflattened):
+            T_range = (T >= self.T_min) & (T <= self.T_max)
+            if self.exclude_interval is not None:
+                if not isinstance(self.exclude_interval[0], (tuple, list)):
+                    self.exclude_interval = [self.exclude_interval]
+                for interval in self.exclude_interval:
+                    T_range &= (T <= interval[0]) | (T >= interval[1])
+            self.T_unflattened[i] = self.T_unflattened[i][T_range]
+            self.Cp_unflattened[i] = self.Cp_unflattened[i][T_range]
 
-
-        self.T_measured = self.T_measured[T_range]
-        self.Cp_measured = self.Cp_measured[T_range]
+        self.T_measured = np.concatenate(self.T_unflattened)
+        self.Cp_measured = np.concatenate(self.Cp_unflattened)
         
         self.Cp_fit_func = Cp_fit_func
         
