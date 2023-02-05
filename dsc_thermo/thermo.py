@@ -49,8 +49,8 @@ class Phase:
             Cp_list = [data.cp(molar_mass) for data in dsc_data]
             self.T_unflattened = [data[0] for data in Cp_list]
             self.Cp_unflattened = [data[1] for data in Cp_list]
-            self.T_measured = np.concatenate([data[0] for data in Cp_list])
-            self.Cp_measured = np.concatenate([data[1] for data in Cp_list])
+            self.T_measured = np.concatenate(self.T_unflattened)
+            self.Cp_measured = np.concatenate(self.Cp_unflattened)
         else: 
             self.T_measured, self.Cp_measured = dsc_data.cp(molar_mass)
             
