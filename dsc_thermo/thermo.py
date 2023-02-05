@@ -44,7 +44,7 @@ class Phase:
     '''
     def __init__(self, dsc_data, Cp_fit_func=None, Cp_data=None, molar_mass=None, **kwargs):
         if Cp_data is not None:
-            self.T_measured, self.Cp_measured = Cp_data
+            self.T_unflattened, self.Cp_unflattened = Cp_data
         elif isinstance(dsc_data, (list, tuple)):
             Cp_list = [data.cp(molar_mass) for data in dsc_data]
             self.T_unflattened = [data[0] for data in Cp_list]
